@@ -27,9 +27,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === link.href
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    pathname === link.href ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   {link.label}

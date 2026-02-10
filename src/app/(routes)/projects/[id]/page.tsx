@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
-import ProjectDetailPage from '@/components/project-detail';
+import ProjectDetail from '@/components/projects/project-detail';
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
@@ -8,12 +8,12 @@ interface ProjectPageProps {
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const session = await auth();
-  
+
   if (!session?.user) {
     redirect('/login');
   }
 
   const { id } = await params;
 
-  return <ProjectDetailPage projectId={id} />;
+  return <ProjectDetail projectId={id} />;
 }

@@ -33,10 +33,7 @@ export const authConfig = {
           return null;
         }
 
-        const isValid = await compare(
-          String(credentials.password),
-          user.password
-        );
+        const isValid = await compare(String(credentials.password), user.password);
 
         if (!isValid) {
           return null;

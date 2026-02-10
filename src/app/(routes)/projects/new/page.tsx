@@ -1,9 +1,19 @@
-import NewProjectPage from '@/components/new-project'
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import CreateProjectForm from '@/components/projects/create-project-form';
 
-const page = () => {
-  return (
-    <NewProjectPage />
-  )
+export default async function NewProjectPage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect('/login');
+  }
+
+  const role = (session.user as any).role;
+
+  if (role !== 'ADMIN') {
+    redirect('/projects');
+  }
+
+  return <CreateProjectForm />;
 }
-
-export default page

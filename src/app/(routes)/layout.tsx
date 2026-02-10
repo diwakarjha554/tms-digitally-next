@@ -1,14 +1,5 @@
-import Navbar from '@/components/layout/navbar';
+import DashboardLayout from '@/components/layout/dashboard-layout';
 
-export default function RoutesLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main>{children}</main>
-    </div>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

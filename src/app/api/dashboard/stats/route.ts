@@ -1,0 +1,295 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { requireAuth } from '@/lib/auth';
+
+export async function GET(req: NextRequest) {
+  try {
+    const user = await requireAuth();
+    const role = (user as any).role;
+
+    let stats: any = {};
+
+    if (role === 'ADMIN') {
+      // Admin Dashboard Stats
+      const [
+        totalProjects,
+        activeProjects,
+        totalTasks,
+        completedTasks,
+        totalUsers,
+        activeUsers,
+        projectsByStatus,
+        tasksByPriority,
+        recentProjects,
+        recentTasks,
+      ] = await Promise.all([
+        prisma.project.count(),
+        prisma.project.count({ where: { status: 'ACTIVE' } }),
+        prisma.task.count(),
+        prisma.task.count({ where: { status: 'DONE' } }),
+        prisma.user.count(),
+        prisma.user.count({ where: { isActive: true } }),
+
+        // Projects by status
+        prisma.project.groupBy({
+          by: ['status'],
+          _count: { id: true },
+        }),
+
+        // Tasks by priority
+        prisma.task.groupBy({
+          by: ['priority'],
+          _count: { id: true },
+        }),
+
+        // Recent projects
+        prisma.project.findMany({
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            manager: { select: { name: true } },
+            _count: { select: { tasks: true, memberships: true } },
+          },
+        }),
+
+        // Recent tasks
+        prisma.task.findMany({
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            project: { select: { name: true } },
+            assignee: { select: { name: true } },
+          },
+        }),
+      ]);
+
+      stats = {
+        overview: {
+          totalProjects,
+          activeProjects,
+          totalTasks,
+          completedTasks,
+          completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+          totalUsers,
+          activeUsers,
+        },
+        projectsByStatus: projectsByStatus.reduce(
+          (acc, item) => {
+            acc[item.status] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+        tasksByPriority: tasksByPriority.reduce(
+          (acc, item) => {
+            acc[item.priority] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+        recentProjects,
+        recentTasks,
+      };
+    } else if (role === 'PROJECT_MANAGER') {
+      // Project Manager Dashboard Stats
+      const [
+        managedProjects,
+        totalTasks,
+        completedTasks,
+        todoTasks,
+        inProgressTasks,
+        tasksByProject,
+        memberPerformance,
+        recentActivities,
+      ] = await Promise.all([
+        prisma.project.findMany({
+          where: { managerId: user.id },
+          include: {
+            _count: { select: { tasks: true, memberships: true } },
+          },
+        }),
+
+        prisma.task.count({
+          where: {
+            project: { managerId: user.id },
+          },
+        }),
+
+        prisma.task.count({
+          where: {
+            project: { managerId: user.id },
+            status: 'DONE',
+          },
+        }),
+
+        prisma.task.count({
+          where: {
+            project: { managerId: user.id },
+            status: 'TODO',
+          },
+        }),
+
+        prisma.task.count({
+          where: {
+            project: { managerId: user.id },
+            status: 'IN_PROGRESS',
+          },
+        }),
+
+        // Tasks grouped by project
+        prisma.task.groupBy({
+          by: ['projectId', 'status'],
+          where: {
+            project: { managerId: user.id },
+          },
+          _count: { id: true },
+        }),
+
+        // Member performance (tasks completed)
+        prisma.task.groupBy({
+          by: ['assigneeId'],
+          where: {
+            project: { managerId: user.id },
+            status: 'DONE',
+            assigneeId: { not: null },
+          },
+          _count: { id: true },
+        }),
+
+        // Recent activities
+        prisma.activityLog.findMany({
+          where: {
+            project: { managerId: user.id },
+          },
+          take: 20,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: { select: { name: true } },
+            project: { select: { name: true } },
+          },
+        }),
+      ]);
+
+      // Get member details
+      const memberIds = memberPerformance.map((m) => m.assigneeId).filter(Boolean) as string[];
+
+      const members = await prisma.user.findMany({
+        where: { id: { in: memberIds } },
+        select: { id: true, name: true, email: true },
+      });
+
+      const memberStats = memberPerformance.map((perf) => {
+        const member = members.find((m) => m.id === perf.assigneeId);
+        return {
+          member,
+          completedTasks: perf._count.id,
+        };
+      });
+
+      stats = {
+        overview: {
+          managedProjects: managedProjects.length,
+          totalTasks,
+          completedTasks,
+          todoTasks,
+          inProgressTasks,
+          completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+        },
+        projects: managedProjects,
+        tasksByProject,
+        memberPerformance: memberStats,
+        recentActivities,
+      };
+    } else {
+      // Member Dashboard Stats
+      const [
+        assignedProjects,
+        totalTasks,
+        completedTasks,
+        todoTasks,
+        inProgressTasks,
+        tasksByPriority,
+        recentTasks,
+        upcomingDeadlines,
+      ] = await Promise.all([
+        prisma.projectMembership.count({
+          where: { userId: user.id },
+        }),
+
+        prisma.task.count({
+          where: { assigneeId: user.id },
+        }),
+
+        prisma.task.count({
+          where: {
+            assigneeId: user.id,
+            status: 'DONE',
+          },
+        }),
+
+        prisma.task.count({
+          where: {
+            assigneeId: user.id,
+            status: 'TODO',
+          },
+        }),
+
+        prisma.task.count({
+          where: {
+            assigneeId: user.id,
+            status: 'IN_PROGRESS',
+          },
+        }),
+
+        // Tasks by priority
+        prisma.task.groupBy({
+          by: ['priority', 'status'],
+          where: { assigneeId: user.id },
+          _count: { id: true },
+        }),
+
+        // Recent tasks
+        prisma.task.findMany({
+          where: { assigneeId: user.id },
+          take: 10,
+          orderBy: { updatedAt: 'desc' },
+          include: {
+            project: { select: { name: true } },
+          },
+        }),
+
+        // Upcoming deadlines
+        prisma.task.findMany({
+          where: {
+            assigneeId: user.id,
+            status: { not: 'DONE' },
+            dueDate: { gte: new Date() },
+          },
+          orderBy: { dueDate: 'asc' },
+          take: 5,
+          include: {
+            project: { select: { name: true } },
+          },
+        }),
+      ]);
+
+      stats = {
+        overview: {
+          assignedProjects,
+          totalTasks,
+          completedTasks,
+          todoTasks,
+          inProgressTasks,
+          completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+        },
+        tasksByPriority,
+        recentTasks,
+        upcomingDeadlines,
+      };
+    }
+
+    return NextResponse.json(stats);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

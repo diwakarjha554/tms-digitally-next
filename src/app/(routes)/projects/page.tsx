@@ -1,9 +1,13 @@
-import ProjectsPage from '@/components/projects'
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import ProjectsList from '@/components/projects/projects-list';
 
-const page = () => {
-  return (
-    <ProjectsPage />
-  )
+export default async function ProjectsPage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect('/login');
+  }
+
+  return <ProjectsList />;
 }
-
-export default page
