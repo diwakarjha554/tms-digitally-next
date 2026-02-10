@@ -179,7 +179,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex h-9 w-9 items-center justify-center rounded bg-linear-to-br from-blue-600 to-indigo-600 shadow-md">
             <span className="text-lg font-bold text-white">T</span>
           </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">TaskMS</span>
+          <span className="text-xl font-bold text-gray-900 dark:text-white">TaskFlow</span>
         </Link>
       </div>
 

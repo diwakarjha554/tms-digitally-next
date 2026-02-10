@@ -10,10 +10,13 @@ import { SmoothScrollProvider } from '@/components/providers/smooth-scroll-provi
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'TaskMS - Task Management System',
+  title: 'TaskFlow - Task Management System',
   description:
     'A powerful task management system with role-based access control, kanban boards, and real-time collaboration.',
   keywords: ['task management', 'project management', 'kanban', 'team collaboration'],
+  icons: {
+    icon: [{ url: '/logo.png', type: 'image/png' }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
