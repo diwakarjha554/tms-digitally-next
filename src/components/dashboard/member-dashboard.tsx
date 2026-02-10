@@ -478,7 +478,7 @@ const StatCard = memo(
           <div className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/10 rounded-full -mr-12 -mt-12`} />
           <CardContent className="px-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 ${colorClasses[color as keyof typeof colorClasses]} rounded-lg`}>{icon}</div>
+              <div className={`p-2 ${colorClasses[color as keyof typeof colorClasses]} rounded`}>{icon}</div>
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{value}</p>

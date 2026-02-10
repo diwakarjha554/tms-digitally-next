@@ -26,12 +26,12 @@ async function main() {
   // Create Project Managers
   const projectManagers = [
     {
-      email: 'sarah.johnson@digitallynext.com',
-      name: 'Sarah Johnson',
+      email: 'manish.singh@digitallynext.com',
+      name: 'Manish Singh',
     },
     {
-      email: 'michael.chen@digitallynext.com',
-      name: 'Michael Chen',
+      email: 'satyam.singh@digitallynext.com',
+      name: 'Satyam Singh',
     },
   ];
 
@@ -58,28 +58,28 @@ async function main() {
   // Create Team Members (Employees)
   const members = [
     {
-      email: 'john.smith@digitallynext.com',
-      name: 'John Smith',
+      email: 'rishika.singh@digitallynext.com',
+      name: 'Rishika singh',
     },
     {
-      email: 'emily.davis@digitallynext.com',
-      name: 'Emily Davis',
+      email: 'gulshan.yadav@digitallynext.com',
+      name: 'Gulshan Yadav',
     },
     {
-      email: 'david.wilson@digitallynext.com',
-      name: 'David Wilson',
+      email: 'kapil.sinha@digitallynext.com',
+      name: 'Kapil Sinha',
     },
     {
-      email: 'jessica.brown@digitallynext.com',
-      name: 'Jessica Brown',
+      email: 'gaurav.singh@digitallynext.com',
+      name: 'Gaurav Kushwaha',
     },
     {
-      email: 'robert.taylor@digitallynext.com',
-      name: 'Robert Taylor',
+      email: 'priya.yadav@digitallynext.com',
+      name: 'Priya Yadav',
     },
     {
-      email: 'amanda.martinez@digitallynext.com',
-      name: 'Amanda Martinez',
+      email: 'kalpana.chauhan@digitallynext.com',
+      name: 'kalpana Chauhan',
     },
   ];
 

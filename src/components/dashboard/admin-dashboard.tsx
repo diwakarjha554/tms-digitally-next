@@ -485,7 +485,7 @@ const StatusItem = memo(
     count: number;
     bgClass: string;
   }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200">
+    <div className="flex items-center justify-between p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200">
       <div className="flex items-center gap-2">
         {icon ? (
           <div className={`${bgClass} rounded p-1`}>{icon}</div>
@@ -538,7 +538,7 @@ const StatCard = memo(
           <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full -ml-8 -mb-8" />
           <CardContent className="px-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 rounded-lg`}>{icon}</div>
+              <div className={`p-2 rounded`}>{icon}</div>
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">

@@ -47,7 +47,7 @@ export default function StatsCard({ title, value, subtitle, icon: Icon, color }:
     <Card className="hover:shadow-xs transition-all duration-300 border-2">
       <CardContent className="px-6">
         <div className="flex items-center justify-between mb-3">
-          <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+          <div className={`p-2 rounded ${colorClasses[color]}`}>
             <Icon className="w-5 h-5" />
           </div>
         </div>

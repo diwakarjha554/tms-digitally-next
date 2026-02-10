@@ -379,7 +379,7 @@ export default function UserManagement() {
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-gray-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
               <CardContent className="px-6 relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded">
                     <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                   </div>
                   <TrendingUp className="w-4 h-4 text-green-500" />
@@ -397,7 +397,7 @@ export default function UserManagement() {
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-purple-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
               <CardContent className="px-6 relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded">
                     <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   </div>
                   <Badge className="bg-purple-500 text-white text-xs animate-pulse">Admin</Badge>
@@ -415,7 +415,7 @@ export default function UserManagement() {
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
               <CardContent className="px-6 relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded">
                     <Briefcase className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
@@ -432,7 +432,7 @@ export default function UserManagement() {
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-green-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
               <CardContent className="px-6 relative z-10">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded">
                     <User className="w-6 h-6 text-green-600 dark:text-green-400" />
                   </div>
                 </div>
