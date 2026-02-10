@@ -189,11 +189,49 @@ function MemberDashboard() {
   };
 
   const isUrgent = (dueDate: string) => {
+    if (!dueDate) return false;
+
     const due = new Date(dueDate);
     const today = new Date();
+
+    // Set both to start of day for accurate comparison
+    due.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
     const diffTime = due.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 2 && diffDays >= 0;
+
+    // Urgent if due within 2 days (0, 1, or 2 days remaining)
+    return diffDays >= 0 && diffDays <= 2;
+  };
+
+  const formatDueDate = (dueDate: string) => {
+    if (!dueDate) return 'No date';
+
+    const due = new Date(dueDate);
+    const today = new Date();
+
+    // Set both to start of day
+    due.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Handle different cases
+    if (diffDays < 0) {
+      const overdueDays = Math.abs(diffDays);
+      return `Overdue by ${overdueDays} day${overdueDays > 1 ? 's' : ''}`;
+    } else if (diffDays === 0) {
+      return 'Due Today';
+    } else if (diffDays === 1) {
+      return 'Due Tomorrow';
+    } else {
+      return due.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+    }
   };
 
   if (loading) {
@@ -285,10 +323,10 @@ function MemberDashboard() {
       </div>
 
       {/* Completion Rate Card */}
-      <Card className="completion-card-animate bg-linear-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 border-0 text-white mb-8 overflow-hidden relative hover:shadow-xs transition-shadow duration-300">
+      <Card className="completion-card-animate bg-linear-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 border-0 text-white mb-8 overflow-hidden relative hover:shadow-lg transition-shadow duration-300">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-        <CardContent className="px-6 relative z-10">
+        <CardContent className="p-6 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
@@ -310,7 +348,7 @@ function MemberDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Tasks */}
-        <Card className="tasks-section-animate hover:shadow-xs transition-shadow duration-300">
+        <Card className="tasks-section-animate hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ListTodo className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -370,7 +408,7 @@ function MemberDashboard() {
         </Card>
 
         {/* Upcoming Deadlines */}
-        <Card className="deadlines-section-animate hover:shadow-xs transition-shadow duration-300">
+        <Card className="deadlines-section-animate hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarClock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -391,7 +429,9 @@ function MemberDashboard() {
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {stats.upcomingDeadlines.map((task) => {
-                  const urgent = isUrgent(task.dueDate);
+                  const urgent = task.dueDate ? isUrgent(task.dueDate) : false;
+                  const dueText = task.dueDate ? formatDueDate(task.dueDate) : 'No date';
+
                   return (
                     <div
                       key={task.id}
@@ -424,13 +464,7 @@ function MemberDashboard() {
                           }`}
                         >
                           <Calendar className="w-3.5 h-3.5" />
-                          <span>
-                            Due:{' '}
-                            {new Date(task.dueDate).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </span>
+                          <span>{dueText}</span>
                         </div>
                       </div>
                     </div>
@@ -445,7 +479,7 @@ function MemberDashboard() {
   );
 }
 
-// Memoized StatCard component to prevent unnecessary re-renders [web:7]
+// Memoized StatCard component
 const StatCard = memo(
   ({
     icon,
@@ -461,10 +495,10 @@ const StatCard = memo(
     color: string;
   }) => {
     const colorClasses = {
-      blue: 'border-blue-200 dark:border-blue-800 bg-blue-100 dark:bg-blue-900/30',
-      purple: 'border-purple-200 dark:border-purple-800 bg-purple-100 dark:bg-purple-900/30',
-      yellow: 'border-yellow-200 dark:border-yellow-800 bg-yellow-100 dark:bg-yellow-900/30',
-      green: 'border-green-200 dark:border-green-800 bg-green-100 dark:bg-green-900/30',
+      blue: 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20',
+      purple: 'border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20',
+      yellow: 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20',
+      green: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
     };
 
     return (
@@ -472,13 +506,13 @@ const StatCard = memo(
         <Card
           className={`${
             colorClasses[color as keyof typeof colorClasses]
-          } hover:shadow-xs transition-shadow duration-300 overflow-hidden relative cursor-pointer`}
+          } hover:shadow-lg transition-all duration-300 overflow-hidden relative cursor-pointer border`}
           style={{ willChange: 'transform' }}
         >
           <div className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/10 rounded-full -mr-12 -mt-12`} />
-          <CardContent className="px-6 relative z-10">
+          <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 ${colorClasses[color as keyof typeof colorClasses]} rounded`}>{icon}</div>
+              <div className={`p-2 ${colorClasses[color as keyof typeof colorClasses]} rounded-lg`}>{icon}</div>
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</p>
             <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{value}</p>

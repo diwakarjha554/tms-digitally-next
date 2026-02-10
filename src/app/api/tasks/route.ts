@@ -8,8 +8,8 @@ const taskSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
   status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']),
-  projectId: z.string().uuid(),
-  assigneeId: z.string().uuid().optional().nullable(),
+  projectId: z.uuid(),
+  assigneeId: z.uuid().optional().nullable(),
   dueDate: z.string().optional().nullable(),
 });
 
@@ -59,6 +59,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(tasks);
   } catch (error: any) {
+    console.error('Get tasks error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -95,12 +96,31 @@ export async function POST(req: NextRequest) {
       select: { order: true },
     });
 
+    let dueDateValue: Date | null = null;
+    if (validated.dueDate) {
+      try {
+        // Parse date string (expected format: YYYY-MM-DD)
+        const [year, month, day] = validated.dueDate.split('-').map(Number);
+        // Create date at noon UTC to avoid timezone conversion issues
+        dueDateValue = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      } catch (error) {
+        console.error('Date parsing error:', error);
+        // Fallback to direct parsing if split fails
+        dueDateValue = new Date(validated.dueDate);
+      }
+    }
+
     const task = await prisma.task.create({
       data: {
-        ...validated,
+        title: validated.title,
+        description: validated.description,
+        priority: validated.priority,
+        status: validated.status,
+        projectId: validated.projectId,
+        assigneeId: validated.assigneeId || null,
+        dueDate: dueDateValue, // Use properly parsed date
         createdById: user.id,
         order: (maxOrder?.order || 0) + 1,
-        ...(validated.dueDate ? { dueDate: new Date(validated.dueDate) } : {}),
       },
       include: {
         project: { select: { id: true, name: true } },
@@ -119,6 +139,7 @@ export async function POST(req: NextRequest) {
           taskTitle: task.title,
           projectName: task.project.name,
           assigneeName: task.assignee?.name,
+          dueDate: dueDateValue ? dueDateValue.toISOString() : null,
         }),
         userId: user.id,
         projectId: validated.projectId,
@@ -128,6 +149,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(task, { status: 201 });
   } catch (error: any) {
+    console.error('Create task error:', error);
     if (error.name === 'ZodError') {
       return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
     }

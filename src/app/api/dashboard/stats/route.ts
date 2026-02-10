@@ -31,13 +31,11 @@ export async function GET(req: NextRequest) {
         prisma.user.count(),
         prisma.user.count({ where: { isActive: true } }),
 
-        // Projects by status
         prisma.project.groupBy({
           by: ['status'],
           _count: { id: true },
         }),
 
-        // Tasks by priority
         prisma.task.groupBy({
           by: ['priority'],
           _count: { id: true },
@@ -48,7 +46,6 @@ export async function GET(req: NextRequest) {
           _count: { id: true },
         }),
 
-        // Recent projects
         prisma.project.findMany({
           take: 5,
           orderBy: { createdAt: 'desc' },
@@ -58,7 +55,6 @@ export async function GET(req: NextRequest) {
           },
         }),
 
-        // Recent tasks
         prisma.task.findMany({
           take: 10,
           orderBy: { createdAt: 'desc' },
@@ -72,7 +68,7 @@ export async function GET(req: NextRequest) {
       const projectTaskDistribution = await prisma.project.findMany({
         where: {
           tasks: {
-            some: {}, // Only projects with tasks
+            some: {},
           },
         },
         select: {
@@ -132,7 +128,6 @@ export async function GET(req: NextRequest) {
           },
           {} as Record<string, number>
         ),
-
         tasksByStatus: tasksByStatus.reduce(
           (acc, item) => {
             acc[item.status] = item._count.id;
@@ -140,7 +135,6 @@ export async function GET(req: NextRequest) {
           },
           {} as Record<string, number>
         ),
-
         projectTaskDistribution: distribution,
         recentProjects,
         recentTasks,
@@ -200,7 +194,6 @@ export async function GET(req: NextRequest) {
           _count: { id: true },
         }),
 
-        // Tasks grouped by project
         prisma.task.groupBy({
           by: ['projectId', 'status'],
           where: {
@@ -209,7 +202,6 @@ export async function GET(req: NextRequest) {
           _count: { id: true },
         }),
 
-        // Member performance (tasks completed)
         prisma.task.groupBy({
           by: ['assigneeId'],
           where: {
@@ -220,7 +212,6 @@ export async function GET(req: NextRequest) {
           _count: { id: true },
         }),
 
-        // Recent activities
         prisma.activityLog.findMany({
           where: {
             project: { managerId: user.id },
@@ -234,7 +225,6 @@ export async function GET(req: NextRequest) {
         }),
       ]);
 
-      // Get member details
       const memberIds = memberPerformance.map((m) => m.assigneeId).filter(Boolean) as string[];
 
       const members = await prisma.user.findMany({
@@ -279,7 +269,6 @@ export async function GET(req: NextRequest) {
           completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
         },
         projects: managedProjects,
-
         tasksByStatus: tasksByStatus.reduce(
           (acc, item) => {
             acc[item.status] = item._count.id;
@@ -288,13 +277,11 @@ export async function GET(req: NextRequest) {
           {} as Record<string, number>
         ),
         tasksByProject,
-
         projectTaskDistribution,
         memberPerformance: memberStats,
         recentActivities,
       };
     } else {
-      // Member Dashboard Stats
       const [
         assignedProjects,
         totalTasks,
@@ -335,7 +322,6 @@ export async function GET(req: NextRequest) {
           },
         }),
 
-        // Tasks by priority
         prisma.task.groupBy({
           by: ['priority'],
           where: { assigneeId: user.id },
@@ -348,7 +334,6 @@ export async function GET(req: NextRequest) {
           _count: { id: true },
         }),
 
-        // Recent tasks
         prisma.task.findMany({
           where: { assigneeId: user.id },
           take: 10,
@@ -358,15 +343,14 @@ export async function GET(req: NextRequest) {
           },
         }),
 
-        // Upcoming deadlines
         prisma.task.findMany({
           where: {
             assigneeId: user.id,
             status: { not: 'DONE' },
-            dueDate: { gte: new Date() },
+            dueDate: { not: null }, // Has a due date
           },
           orderBy: { dueDate: 'asc' },
-          take: 5,
+          take: 10,
           include: {
             project: { select: { name: true } },
           },
@@ -424,7 +408,6 @@ export async function GET(req: NextRequest) {
           },
           {} as Record<string, number>
         ),
-
         tasksByStatus: tasksByStatus.reduce(
           (acc, item) => {
             acc[item.status] = item._count.id;
@@ -432,7 +415,6 @@ export async function GET(req: NextRequest) {
           },
           {} as Record<string, number>
         ),
-
         projectTaskDistribution,
         recentTasks,
         upcomingDeadlines,
