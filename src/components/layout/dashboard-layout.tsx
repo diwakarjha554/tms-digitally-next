@@ -41,6 +41,7 @@ import {
   User,
   AlertCircle,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -175,11 +176,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-full flex-col bg-white dark:bg-gray-800">
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center px-4 border-b border-gray-200 dark:border-gray-700">
-        <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
-          <div className="flex h-9 w-9 items-center justify-center rounded bg-linear-to-br from-blue-600 to-indigo-600 shadow-md">
-            <span className="text-lg font-bold text-white">T</span>
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="relative">
+            {/* Logo Container */}
+            <div className="relative w-10 h-10 md:w-12 md:h-12 rounded bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" strokeWidth={2.5} />
+            </div>
           </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">TaskFlow</span>
+          <span className="text-xl md:text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            TaskFlow
+          </span>
         </Link>
       </div>
 
