@@ -211,7 +211,7 @@ export default function ActivityLogs() {
                 >
                   <div className="flex items-start gap-3">
                     {/* Action Icon */}
-                    <div className={`p-2 rounded-lg shrink-0 ${getActionColor(activity.action)}`}>
+                    <div className={`p-2 rounded shrink-0 ${getActionColor(activity.action)}`}>
                       {getActionIcon(activity.action)}
                     </div>
 

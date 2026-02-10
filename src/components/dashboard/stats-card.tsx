@@ -29,7 +29,7 @@ export default function StatsCard({ title, value, subtitle, icon: Icon, color }:
       <CardContent className="px-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm`}>
+            <div className={`p-2 rounded bg-white dark:bg-gray-800 shadow-sm`}>
               <Icon className="w-5 h-5" />
             </div>
           </div>

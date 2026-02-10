@@ -17,6 +17,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import {
   LayoutDashboard,
@@ -29,6 +39,8 @@ import {
   Crown,
   Briefcase,
   User,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -39,6 +51,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   const user = session?.user as any;
   const role = user?.role;
@@ -95,13 +109,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return pathname.startsWith(href);
   }
 
-  async function handleSignOut() {
+  // Open sign out confirmation dialog
+  function openSignOutDialog() {
+    setSignOutDialogOpen(true);
+  }
+
+  // Actual sign out function
+  async function confirmSignOut() {
+    setSigningOut(true);
     const loadingToast = toast.loading('Signing out...');
+
     try {
       await signOut({ callbackUrl: '/login' });
       toast.success('Signed out successfully', { id: loadingToast });
     } catch (error) {
       toast.error('Failed to sign out', { id: loadingToast });
+      setSigningOut(false);
+      setSignOutDialogOpen(false);
     }
   }
 
@@ -152,7 +176,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center px-4 border-b border-gray-200 dark:border-gray-700">
         <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-indigo-600 shadow-md">
+          <div className="flex h-9 w-9 items-center justify-center rounded bg-linear-to-br from-blue-600 to-indigo-600 shadow-md">
             <span className="text-lg font-bold text-white">T</span>
           </div>
           <span className="text-xl font-bold text-gray-900 dark:text-white">TaskMS</span>
@@ -168,7 +192,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           return (
             <Link key={item.name} href={item.href} onClick={() => setSidebarOpen(false)}>
               <div
-                className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                className={`group flex items-center gap-3 rounded px-3 py-2.5 text-sm font-medium transition-all ${
                   active
                     ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
@@ -208,7 +232,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleSignOut}
+            onClick={openSignOutDialog}
             className="flex-1 justify-center gap-2 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -252,7 +276,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <SidebarContent />
         </aside>
 
-        {/* Mobile Sidebar - NO DOUBLE CLOSE BUTTON */}
+        {/* Mobile Sidebar */}
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen} modal={false}>
           <SheetContent side="left" className="w-64 p-0 lg:hidden border-r shadow-xl" showCloseButton={true}>
             <SidebarContent />
@@ -312,8 +336,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={handleSignOut}
-                    className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                    onClick={openSignOutDialog}
+                    className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
@@ -327,6 +351,45 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <main className="min-h-[calc(100vh-4rem)]">{children}</main>
         </div>
       </div>
+
+      {/* Sign Out Confirmation Dialog */}
+      <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-600" />
+              Sign Out Confirmation
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to sign out?
+              <br />
+              <span className="text-gray-700 dark:text-gray-300 font-medium mt-2 block">
+                You'll need to sign in again to access your account.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={signingOut}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmSignOut}
+              disabled={signingOut}
+              className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+            >
+              {signingOut ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Signing Out...
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
