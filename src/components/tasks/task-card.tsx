@@ -63,6 +63,7 @@ interface TaskCardProps {
   task: Task;
   members: Member[];
   canManage: boolean;
+  canDrag: boolean; // ADD THIS NEW PROP
   onDragStart: () => void;
   onDragEnd: () => void;
   onUpdate: (task: Task) => void;
@@ -73,6 +74,7 @@ export default function TaskCard({
   task,
   members,
   canManage,
+  canDrag, // ADD THIS
   onDragStart,
   onDragEnd,
   onUpdate,
@@ -139,10 +141,12 @@ export default function TaskCard({
   return (
     <>
       <Card
-        draggable={canManage}
+        draggable={canDrag} // CHANGE FROM canManage TO canDrag
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        className="hover:shadow-md transition-all cursor-move active:cursor-grabbing"
+        className={`transition-all ${
+          canDrag ? 'hover:shadow-md cursor-move active:cursor-grabbing' : 'cursor-default opacity-90'
+        }`}
       >
         <CardContent className="px-4">
           <div className="flex justify-between items-start gap-2 mb-3">

@@ -8,6 +8,7 @@ import TaskCard from './task-card';
 import CreateTaskModal from './create-task-modal';
 import { ListTodo, Plus, Clock, PlayCircle, CheckCircle2, Inbox } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSession } from 'next-auth/react'; // ADD THIS
 
 interface Task {
   id: string;
@@ -39,6 +40,9 @@ interface TaskBoardProps {
 }
 
 export default function TaskBoard({ projectId, initialTasks, members, canManageTasks }: TaskBoardProps) {
+  const { data: session } = useSession(); // ADD THIS
+  const currentUserId = (session?.user as any)?.id; // ADD THIS
+
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
@@ -47,6 +51,15 @@ export default function TaskBoard({ projectId, initialTasks, members, canManageT
   const todoTasks = tasks.filter((t) => t.status === 'TODO');
   const inProgressTasks = tasks.filter((t) => t.status === 'IN_PROGRESS');
   const completedTasks = tasks.filter((t) => t.status === 'DONE');
+
+  // ADD THIS FUNCTION
+  function canDragTask(task: Task): boolean {
+    // Admin and PM can drag all tasks
+    if (canManageTasks) return true;
+
+    // Members can drag only their assigned tasks
+    return task.assigneeId === currentUserId;
+  }
 
   async function handleStatusChange(taskId: string, newStatus: 'TODO' | 'IN_PROGRESS' | 'DONE') {
     const previousTasks = [...tasks];
@@ -113,9 +126,16 @@ export default function TaskBoard({ projectId, initialTasks, members, canManageT
   async function handleDrop(e: React.DragEvent, status: 'TODO' | 'IN_PROGRESS' | 'DONE') {
     e.preventDefault();
 
-    if (!draggedTask || !canManageTasks) {
+    // UPDATED CONDITION
+    if (!draggedTask || !canDragTask(draggedTask)) {
       setDraggedTask(null);
       setDragOverColumn(null);
+      if (draggedTask && !canDragTask(draggedTask)) {
+        toast.error('You can only move your assigned tasks', {
+          icon: '🔒',
+          duration: 3000,
+        });
+      }
       return;
     }
 
@@ -252,6 +272,7 @@ export default function TaskBoard({ projectId, initialTasks, members, canManageT
                           task={task}
                           members={members}
                           canManage={canManageTasks}
+                          canDrag={canDragTask(task)} // PASS THIS NEW PROP
                           onDragStart={() => handleDragStart(task)}
                           onDragEnd={handleDragEnd}
                           onUpdate={handleTaskUpdated}
