@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, SyntheticEvent } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -44,12 +44,13 @@ export default function ProfileSettings() {
   async function handleUpdateProfile(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-
     const formData = new FormData(e.currentTarget);
     const data = {
-      name: formData.get('name'),
-      email: formData.get('email'),
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
     };
+
+    const isEmailChanged = data.email !== user?.email;
 
     const loadingToast = toast.loading('Updating profile...');
 
@@ -65,9 +66,28 @@ export default function ProfileSettings() {
         throw new Error(error.error || 'Failed to update profile');
       }
 
-      await update();
-      toast.success('Profile updated successfully!', { id: loadingToast });
-      router.refresh();
+      const updatedUser = await res.json();
+
+      if (isEmailChanged) {
+        toast.success('Profile updated! Please login with your new email.', { id: loadingToast, duration: 4000 });
+
+        // Wait 2 seconds before logout to show the message
+        setTimeout(async () => {
+          await signOut({ callbackUrl: '/login' });
+        }, 2000);
+      } else {
+        await update({
+          ...session,
+          user: {
+            ...session?.user,
+            name: updatedUser.name,
+            email: updatedUser.email,
+          },
+        });
+
+        toast.success('Profile updated successfully!', { id: loadingToast });
+        router.refresh();
+      }
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile', { id: loadingToast });
     } finally {
@@ -106,7 +126,6 @@ export default function ProfileSettings() {
 
       toast.success('Password changed successfully!', { id: loadingToast });
       (e.target as HTMLFormElement).reset();
-      // Reset visibility states after successful password change
       setShowCurrentPassword(false);
       setShowNewPassword(false);
       setShowConfirmPassword(false);
@@ -240,6 +259,10 @@ export default function ProfileSettings() {
                       placeholder="you@example.com"
                       className="mt-2"
                     />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Changing email will log you out. You'll need to login with new email.
+                    </p>
                   </div>
 
                   <div>
@@ -430,11 +453,13 @@ export default function ProfileSettings() {
                     Account Created:
                   </span>
                   <span className="text-gray-900 dark:text-gray-100 font-medium">
-                    {new Date(user?.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {user?.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      : 'N/A'}
                   </span>
                 </div>
               </div>

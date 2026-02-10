@@ -144,7 +144,7 @@ export default function TaskCard({
         onDragEnd={onDragEnd}
         className="hover:shadow-md transition-all cursor-move active:cursor-grabbing"
       >
-        <CardContent className="p-4">
+        <CardContent className="px-4">
           <div className="flex justify-between items-start gap-2 mb-3">
             <h4 className="font-semibold text-gray-900 dark:text-white flex-1 line-clamp-2 text-sm leading-snug">
               {task.title}
@@ -157,13 +157,13 @@ export default function TaskCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-32">
-                  <DropdownMenuItem onClick={() => setShowEditModal(true)}>
+                  <DropdownMenuItem onClick={() => setShowEditModal(true)} className="cursor-pointer">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setShowDeleteDialog(true)}
-                    className="text-red-600 dark:text-red-400 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                    className="text-red-600 cursor-pointer dark:text-red-400 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete

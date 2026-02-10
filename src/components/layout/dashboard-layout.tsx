@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       case 'ADMIN':
         return 'Admin';
       case 'PROJECT_MANAGER':
-        return 'PM';
+        return 'Project Manager';
       default:
         return 'Member';
     }
@@ -230,10 +230,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Button>
           </Link>
           <Button
-            variant="outline"
             size="sm"
             onClick={openSignOutDialog}
-            className="flex-1 justify-center gap-2 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
+            className="flex-1 justify-center gap-2 text-xs font-medium bg-red-500 hover:bg-red-500/90 text-white"
           >
             <LogOut className="h-3.5 w-3.5" />
             <span>Sign Out</span>
@@ -278,7 +277,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Mobile Sidebar */}
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen} modal={false}>
-          <SheetContent side="left" className="w-64 p-0 lg:hidden border-r shadow-xl" showCloseButton={true}>
+          <SheetContent side="left" className="w-64 p-0 lg:hidden border-r shadow-xs" showCloseButton={true}>
             <SidebarContent />
           </SheetContent>
         </Sheet>
@@ -286,7 +285,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Main Content */}
         <div className="lg:pl-64">
           {/* Top Header */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-2 shadow-xs dark:border-gray-700 dark:bg-gray-800 lg:px-8">
             {/* Mobile menu button - Only visible below lg */}
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
               <Menu className="h-6 w-6" />
@@ -304,9 +303,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <ThemeToggle />
 
               {/* Role Badge - Hidden on mobile */}
-              <Badge variant={getRoleBadgeVariant()} className="hidden items-center gap-1.5 sm:inline-flex">
-                {getRoleIcon()}
-                <span>{getRoleLabel()}</span>
+              <Badge
+                variant={getRoleBadgeVariant()}
+                className="rounded h-9 px-4 text-sm hidden items-center gap-1.5 sm:inline-flex"
+              >
+                <span className="font-medium">{getRoleLabel()}</span>
               </Badge>
 
               {/* User Dropdown - Mobile only */}
@@ -373,7 +374,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <AlertDialogAction
               onClick={confirmSignOut}
               disabled={signingOut}
-              className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+              className="bg-red-500 hover:bg-red-500/90 text-white"
             >
               {signingOut ? (
                 <>

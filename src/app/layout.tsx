@@ -1,8 +1,9 @@
+import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from '@/components/theme-provider';
+import { SmoothScrollProvider } from '@/components/providers/smooth-scroll-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

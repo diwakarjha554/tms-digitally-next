@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { gsap } from 'gsap';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -50,7 +51,6 @@ import {
   ArrowUp,
   ArrowDown,
   TrendingUp,
-  FolderOpen,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -98,12 +98,79 @@ export default function ProjectsList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+
   const role = (session?.user as any)?.role;
   const isAdmin = role === 'ADMIN';
 
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  // Simple animations - only for cards
+  useEffect(() => {
+    if (loading) return;
+
+    const ctx = gsap.context(() => {
+      // Header animation
+      gsap.from(headerRef.current, {
+        y: -30,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      });
+
+      // Stats cards stagger animation
+      gsap.from('.stat-card-animate', {
+        y: 50,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power3.out',
+        delay: 0.2,
+      });
+
+      // Animate stat numbers counter
+      const statNumbers = document.querySelectorAll('.stat-number');
+      statNumbers.forEach((element, index) => {
+        const finalValue = parseInt(element.textContent || '0');
+        gsap.from(element, {
+          innerText: 0,
+          duration: 1.5,
+          ease: 'power2.out',
+          delay: 0.4 + index * 0.1,
+          snap: { innerText: 1 },
+          onUpdate: function () {
+            element.textContent = Math.ceil(parseFloat(element.textContent || '0')).toString();
+          },
+        });
+      });
+
+      // Hover effects for stats cards - only lift, no scale
+      const statCards = document.querySelectorAll('.stat-card-animate');
+      statCards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            y: -8,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            y: 0,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        });
+      });
+    });
+
+    return () => ctx.revert();
+  }, [loading]);
 
   async function fetchProjects() {
     try {
@@ -277,7 +344,7 @@ export default function ProjectsList() {
   return (
     <div className="mx-auto px-4 lg:px-8 py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div ref={headerRef} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <FolderKanban className="w-8 h-8" />
@@ -302,58 +369,66 @@ export default function ProjectsList() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div ref={statsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Projects */}
-        <Card className="border-blue-200 dark:border-blue-800 hover:shadow-lg transition-shadow">
-          <CardContent className="px-6">
+        <Card className="stat-card-animate border-blue-200 dark:border-blue-800 hover:shadow-xs transition-shadow overflow-hidden relative cursor-pointer">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-500/5 rounded-full -ml-8 -mb-8 animate-pulse animation-delay-1000" />
+          <CardContent className="px-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                 <FolderKanban className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <TrendingUp className="w-4 h-4 text-green-500" />
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Projects</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalProjects}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{totalProjects}</p>
           </CardContent>
         </Card>
 
         {/* Active Projects */}
-        <Card className="border-green-200 dark:border-green-800 hover:shadow-lg transition-shadow">
-          <CardContent className="px-6">
+        <Card className="stat-card-animate border-green-200 dark:border-green-800 hover:shadow-xs transition-shadow overflow-hidden relative cursor-pointer">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-green-500/5 rounded-full -ml-8 -mb-8 animate-pulse animation-delay-1000" />
+          <CardContent className="px-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded">
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                 <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
-              <Badge className="bg-green-500 text-white text-xs">Active</Badge>
+              <Badge className="bg-green-500 text-white text-xs animate-pulse">Active</Badge>
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Active</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{activeProjects}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{activeProjects}</p>
           </CardContent>
         </Card>
 
         {/* Total Tasks */}
-        <Card className="border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow">
-          <CardContent className="px-6">
+        <Card className="stat-card-animate border-purple-200 dark:border-purple-800 hover:shadow-xs transition-shadow overflow-hidden relative cursor-pointer">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-purple-500/5 rounded-full -ml-8 -mb-8 animate-pulse animation-delay-1000" />
+          <CardContent className="px-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                 <ListChecks className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Tasks</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalTasks}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{totalTasks}</p>
           </CardContent>
         </Card>
 
         {/* Total Members */}
-        <Card className="border-orange-200 dark:border-orange-800 hover:shadow-lg transition-shadow">
-          <CardContent className="px-6">
+        <Card className="stat-card-animate border-orange-200 dark:border-orange-800 hover:shadow-xs transition-shadow overflow-hidden relative cursor-pointer">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-orange-500/5 rounded-full -ml-8 -mb-8 animate-pulse animation-delay-1000" />
+          <CardContent className="px-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
                 <Users className="w-6 h-6 text-orange-600 dark:text-orange-400" />
               </div>
             </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Team Members</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalMembers}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{totalMembers}</p>
           </CardContent>
         </Card>
       </div>

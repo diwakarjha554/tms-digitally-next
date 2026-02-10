@@ -77,13 +77,10 @@ export default function TaskBoard({ projectId, initialTasks, members, canManageT
       const statusMessages = {
         TODO: 'Task moved to To Do',
         IN_PROGRESS: 'Task moved to In Progress',
-        DONE: 'Task marked as completed! 🎉',
+        DONE: 'Task marked as completed!',
       };
 
-      toast.success(statusMessages[newStatus], {
-        duration: 2000,
-        icon: newStatus === 'DONE' ? '🎉' : '✅',
-      });
+      toast.success(statusMessages[newStatus]);
     } catch (error: any) {
       console.error('Failed to update task:', error);
       setTasks(previousTasks);
@@ -215,7 +212,7 @@ export default function TaskBoard({ projectId, initialTasks, members, canManageT
               <Card
                 className={`flex-1 overflow-hidden transition-all duration-200 border-t-4 ${column.topBorderColor} ${
                   isDropTarget && !isDraggingToSameColumn
-                    ? 'ring-2 ring-blue-500 shadow-lg scale-[1.02] bg-blue-50/50 dark:bg-blue-900/10'
+                    ? 'ring-2 ring-blue-500 shadow-xs scale-[1.02] bg-blue-50/50 dark:bg-blue-900/10'
                     : ''
                 } ${isDraggingToSameColumn && isDropTarget ? 'opacity-50' : ''}`}
                 onDragOver={(e) => handleDragOver(e, column.id)}

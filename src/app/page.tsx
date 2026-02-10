@@ -36,7 +36,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/register"
-                className="px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl font-semibold"
+                className="px-6 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded hover:from-blue-700 hover:to-indigo-700 transition-all shadow-xs hover:shadow-xs font-semibold"
               >
                 Get Started
               </Link>
@@ -87,7 +87,7 @@ export default async function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <a
             href="#features"
-            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
+            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-xs transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
           >
             <div className="text-3xl mb-2">✨</div>
             <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -96,7 +96,7 @@ export default async function HomePage() {
           </a>
           <a
             href="#tech-stack"
-            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
+            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-xs transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
           >
             <div className="text-3xl mb-2">🛠️</div>
             <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -105,7 +105,7 @@ export default async function HomePage() {
           </a>
           <a
             href="#setup"
-            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
+            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-xs transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
           >
             <div className="text-3xl mb-2">🚀</div>
             <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -114,7 +114,7 @@ export default async function HomePage() {
           </a>
           <a
             href="#deployment"
-            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
+            className="p-4 bg-white dark:bg-gray-800 rounded shadow hover:shadow-xs transition-shadow border border-gray-200 dark:border-gray-700 text-center group"
           >
             <div className="text-3xl mb-2">☁️</div>
             <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -126,7 +126,7 @@ export default async function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-xs p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
             <span className="text-4xl mr-3">✨</span>
             Key Features
@@ -194,7 +194,7 @@ export default async function HomePage() {
 
       {/* Tech Stack Section */}
       <section id="tech-stack" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-xs p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
             <span className="text-4xl mr-3">🛠️</span>
             Technology Stack
@@ -322,7 +322,7 @@ export default async function HomePage() {
 
       {/* Setup Guide Section */}
       <section id="setup" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-xs p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
             <span className="text-4xl mr-3">🚀</span>
             Local Setup Guide
@@ -439,7 +439,7 @@ NEXTAUTH_URL="http://localhost:3000"`}
 
       {/* Database Schema Section */}
       <section id="database" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-xs p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
             <span className="text-4xl mr-3">💾</span>
             Database Schema
@@ -588,7 +588,7 @@ NEXTAUTH_URL="http://localhost:3000"`}
 
       {/* Deployment Section */}
       <section id="deployment" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-xs p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
             <span className="text-4xl mr-3">☁️</span>
             Deployment Guide
@@ -690,7 +690,7 @@ NEXTAUTH_URL="http://localhost:3000"`}
 
       {/* API Documentation */}
       <section id="api" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded shadow-xs p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
             <span className="text-4xl mr-3">📡</span>
             API Endpoints
@@ -821,13 +821,13 @@ NEXTAUTH_URL="http://localhost:3000"`}
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 rounded p-12 text-center shadow-2xl text-white">
+        <div className="bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 rounded p-12 text-center shadow-xs text-white">
           <h2 className="text-4xl font-bold mb-4">Ready to Start?</h2>
           <p className="text-xl mb-8 opacity-90">Create your account and start managing projects efficiently</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="px-8 py-4 bg-white text-blue-600 rounded hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl font-semibold text-lg"
+              className="px-8 py-4 bg-white text-blue-600 rounded hover:bg-gray-100 transition-all shadow-xs hover:shadow-xs font-semibold text-lg"
             >
               Create Free Account
             </Link>

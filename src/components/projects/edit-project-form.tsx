@@ -131,7 +131,7 @@ export default function EditProjectForm({ projectId }: { projectId: string }) {
         <p className="text-gray-600 mt-1">Update project details and team members</p>
       </div>
 
-      <div className="bg-white rounded shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded shadow-xs border border-gray-200 p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">{error}</div>
@@ -228,7 +228,7 @@ export default function EditProjectForm({ projectId }: { projectId: string }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-linear-to-r from-blue-600 to-indigo-600 text-white py-3 rounded font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+              className="flex-1 bg-linear-to-r from-blue-600 to-indigo-600 text-white py-3 rounded font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs hover:shadow-xs"
             >
               {loading ? 'Updating...' : 'Update Project'}
             </button>

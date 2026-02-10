@@ -73,16 +73,6 @@ export default function RecentProjects({ projects }: { projects: Project[] }) {
             <FolderKanban className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             Recent Projects
           </CardTitle>
-          <Link href="/projects">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-            >
-              View all
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
         </div>
       </CardHeader>
       <CardContent className="p-0">

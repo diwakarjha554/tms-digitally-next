@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
         activeUsers,
         projectsByStatus,
         tasksByPriority,
+        tasksByStatus,
         recentProjects,
         recentTasks,
       ] = await Promise.all([
@@ -39,6 +40,11 @@ export async function GET(req: NextRequest) {
         // Tasks by priority
         prisma.task.groupBy({
           by: ['priority'],
+          _count: { id: true },
+        }),
+
+        prisma.task.groupBy({
+          by: ['status'],
           _count: { id: true },
         }),
 
@@ -62,6 +68,45 @@ export async function GET(req: NextRequest) {
           },
         }),
       ]);
+
+      const projectTaskDistribution = await prisma.project.findMany({
+        where: {
+          tasks: {
+            some: {}, // Only projects with tasks
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          tasks: {
+            select: {
+              status: true,
+            },
+          },
+        },
+        take: 10,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      const distribution = projectTaskDistribution.map((project) => {
+        const totalTasks = project.tasks.length;
+        const todoTasks = project.tasks.filter((t) => t.status === 'TODO').length;
+        const inProgressTasks = project.tasks.filter((t) => t.status === 'IN_PROGRESS').length;
+        const completedTasks = project.tasks.filter((t) => t.status === 'DONE').length;
+        const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        return {
+          projectId: project.id,
+          projectName: project.name,
+          totalTasks,
+          todoTasks,
+          inProgressTasks,
+          completedTasks,
+          completionRate,
+        };
+      });
 
       stats = {
         overview: {
@@ -87,6 +132,16 @@ export async function GET(req: NextRequest) {
           },
           {} as Record<string, number>
         ),
+
+        tasksByStatus: tasksByStatus.reduce(
+          (acc, item) => {
+            acc[item.status] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+
+        projectTaskDistribution: distribution,
         recentProjects,
         recentTasks,
       };
@@ -98,6 +153,7 @@ export async function GET(req: NextRequest) {
         completedTasks,
         todoTasks,
         inProgressTasks,
+        tasksByStatus,
         tasksByProject,
         memberPerformance,
         recentActivities,
@@ -134,6 +190,14 @@ export async function GET(req: NextRequest) {
             project: { managerId: user.id },
             status: 'IN_PROGRESS',
           },
+        }),
+
+        prisma.task.groupBy({
+          by: ['status'],
+          where: {
+            project: { managerId: user.id },
+          },
+          _count: { id: true },
         }),
 
         // Tasks grouped by project
@@ -186,6 +250,25 @@ export async function GET(req: NextRequest) {
         };
       });
 
+      const projectTaskDistribution = managedProjects.map((project) => {
+        const projectTasks = tasksByProject.filter((t) => t.projectId === project.id);
+        const totalTasks = project._count.tasks;
+        const todoTasks = projectTasks.find((t) => t.status === 'TODO')?._count.id || 0;
+        const inProgressTasks = projectTasks.find((t) => t.status === 'IN_PROGRESS')?._count.id || 0;
+        const completedTasks = projectTasks.find((t) => t.status === 'DONE')?._count.id || 0;
+        const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        return {
+          projectId: project.id,
+          projectName: project.name,
+          totalTasks,
+          todoTasks,
+          inProgressTasks,
+          completedTasks,
+          completionRate,
+        };
+      });
+
       stats = {
         overview: {
           managedProjects: managedProjects.length,
@@ -196,7 +279,17 @@ export async function GET(req: NextRequest) {
           completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
         },
         projects: managedProjects,
+
+        tasksByStatus: tasksByStatus.reduce(
+          (acc, item) => {
+            acc[item.status] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
         tasksByProject,
+
+        projectTaskDistribution,
         memberPerformance: memberStats,
         recentActivities,
       };
@@ -209,6 +302,7 @@ export async function GET(req: NextRequest) {
         todoTasks,
         inProgressTasks,
         tasksByPriority,
+        tasksByStatus,
         recentTasks,
         upcomingDeadlines,
       ] = await Promise.all([
@@ -243,7 +337,13 @@ export async function GET(req: NextRequest) {
 
         // Tasks by priority
         prisma.task.groupBy({
-          by: ['priority', 'status'],
+          by: ['priority'],
+          where: { assigneeId: user.id },
+          _count: { id: true },
+        }),
+
+        prisma.task.groupBy({
+          by: ['status'],
           where: { assigneeId: user.id },
           _count: { id: true },
         }),
@@ -273,6 +373,41 @@ export async function GET(req: NextRequest) {
         }),
       ]);
 
+      const memberProjects = await prisma.project.findMany({
+        where: {
+          OR: [{ memberships: { some: { userId: user.id } } }, { tasks: { some: { assigneeId: user.id } } }],
+        },
+        select: {
+          id: true,
+          name: true,
+          tasks: {
+            where: { assigneeId: user.id },
+            select: { status: true },
+          },
+        },
+        take: 10,
+      });
+
+      const projectTaskDistribution = memberProjects
+        .filter((project) => project.tasks.length > 0)
+        .map((project) => {
+          const totalTasks = project.tasks.length;
+          const todoTasks = project.tasks.filter((t) => t.status === 'TODO').length;
+          const inProgressTasks = project.tasks.filter((t) => t.status === 'IN_PROGRESS').length;
+          const completedTasks = project.tasks.filter((t) => t.status === 'DONE').length;
+          const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+          return {
+            projectId: project.id,
+            projectName: project.name,
+            totalTasks,
+            todoTasks,
+            inProgressTasks,
+            completedTasks,
+            completionRate,
+          };
+        });
+
       stats = {
         overview: {
           assignedProjects,
@@ -282,7 +417,23 @@ export async function GET(req: NextRequest) {
           inProgressTasks,
           completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
         },
-        tasksByPriority,
+        tasksByPriority: tasksByPriority.reduce(
+          (acc, item) => {
+            acc[item.priority] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+
+        tasksByStatus: tasksByStatus.reduce(
+          (acc, item) => {
+            acc[item.status] = item._count.id;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+
+        projectTaskDistribution,
         recentTasks,
         upcomingDeadlines,
       };
@@ -290,6 +441,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(stats);
   } catch (error: any) {
+    console.error('Dashboard stats error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

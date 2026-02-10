@@ -80,7 +80,7 @@ export default function CreateTaskModal({ projectId, members, onClose, onTaskCre
       }
 
       const task = await res.json();
-      toast.success('Task created successfully! 🎉', { id: loadingToast });
+      toast.success('Task created successfully!', { id: loadingToast });
       onTaskCreated(task);
     } catch (err: any) {
       toast.error(err.message || 'Failed to create task', { id: loadingToast });

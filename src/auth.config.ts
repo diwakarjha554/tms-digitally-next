@@ -44,6 +44,7 @@ export const authConfig = {
           email: user.email,
           name: user.name,
           role: user.role,
+          createdAt: user.createdAt.toISOString(),
         };
       },
     }),
@@ -56,6 +57,7 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.createdAt = (user as any).createdAt;
       }
       return token;
     },
@@ -63,6 +65,7 @@ export const authConfig = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        (session.user as any).createdAt = token.createdAt;
       }
       return session;
     },

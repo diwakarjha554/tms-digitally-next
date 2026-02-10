@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { gsap } from 'gsap';
 import toast, { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -78,9 +79,75 @@ export default function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Animations
+  useEffect(() => {
+    if (loading) return;
+
+    const ctx = gsap.context(() => {
+      // Header animation
+      gsap.from(headerRef.current, {
+        y: -30,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      });
+
+      // Stats cards stagger animation
+      gsap.from('.stat-card-animate', {
+        y: 50,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power3.out',
+        delay: 0.2,
+      });
+
+      // Animate stat numbers counter
+      const statNumbers = document.querySelectorAll('.stat-number');
+      statNumbers.forEach((element, index) => {
+        const finalValue = parseInt(element.textContent || '0');
+        gsap.from(element, {
+          innerText: 0,
+          duration: 1.5,
+          ease: 'power2.out',
+          delay: 0.4 + index * 0.1,
+          snap: { innerText: 1 },
+          onUpdate: function () {
+            element.textContent = Math.ceil(parseFloat(element.textContent || '0')).toString();
+          },
+        });
+      });
+
+      // Hover effects - only lift
+      const statCards = document.querySelectorAll('.stat-card-animate');
+      statCards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            y: -8,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            y: 0,
+            duration: 0.3,
+            ease: 'power2.out',
+          });
+        });
+      });
+    });
+
+    return () => ctx.revert();
+  }, [loading]);
 
   async function fetchUsers() {
     try {
@@ -290,7 +357,10 @@ export default function UserManagement() {
 
       <div className="mx-auto px-4 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div
+          ref={headerRef}
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+        >
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
               <UserCog className="w-8 h-8" />
@@ -302,55 +372,75 @@ export default function UserManagement() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow">
-            <CardContent className="px-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                  <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          {/* Total Users */}
+          <div className="stat-card-animate">
+            <Card className="border-gray-200 dark:border-gray-800 hover:shadow-xs transition-shadow duration-300 overflow-hidden relative cursor-pointer">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gray-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gray-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
+              <CardContent className="px-6 relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <TrendingUp className="w-4 h-4 text-green-500" />
                 </div>
-                <TrendingUp className="w-4 h-4 text-green-500" />
-              </div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalUsers}</p>
-            </CardContent>
-          </Card>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Users</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{totalUsers}</p>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="border-purple-200 dark:border-purple-800 hover:shadow-lg transition-shadow">
-            <CardContent className="px-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded">
-                  <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          {/* Admins */}
+          <div className="stat-card-animate">
+            <Card className="border-purple-200 dark:border-purple-800 hover:shadow-xs transition-shadow duration-300 overflow-hidden relative cursor-pointer">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-purple-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
+              <CardContent className="px-6 relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <Crown className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <Badge className="bg-purple-500 text-white text-xs animate-pulse">Admin</Badge>
                 </div>
-                <Badge className="bg-purple-500 text-white text-xs">Admin</Badge>
-              </div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Admins</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">{admins}</p>
-            </CardContent>
-          </Card>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Admins</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{admins}</p>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="border-blue-200 dark:border-blue-800 hover:shadow-lg transition-shadow">
-            <CardContent className="px-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded">
-                  <Briefcase className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          {/* Project Managers */}
+          <div className="stat-card-animate">
+            <Card className="border-blue-200 dark:border-blue-800 hover:shadow-xs transition-shadow duration-300 overflow-hidden relative cursor-pointer">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
+              <CardContent className="px-6 relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <Briefcase className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
                 </div>
-              </div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Project Managers</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">{projectManagers}</p>
-            </CardContent>
-          </Card>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Project Managers</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{projectManagers}</p>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="border-green-200 dark:border-green-800 hover:shadow-lg transition-shadow">
-            <CardContent className="px-6">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded">
-                  <User className="w-6 h-6 text-green-600 dark:text-green-400" />
+          {/* Members */}
+          <div className="stat-card-animate">
+            <Card className="border-green-200 dark:border-green-800 hover:shadow-xs transition-shadow duration-300 overflow-hidden relative cursor-pointer">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 rounded-full -mr-12 -mt-12 animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-green-500/5 rounded-full -ml-8 -mb-8 animate-pulse delay-1000" />
+              <CardContent className="px-6 relative z-10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                    <User className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  </div>
                 </div>
-              </div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Members</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">{members}</p>
-            </CardContent>
-          </Card>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Members</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white stat-number">{members}</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <Card>

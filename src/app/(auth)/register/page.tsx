@@ -76,7 +76,7 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-xl w-full max-w-md text-center border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-xs w-full max-w-md text-center border border-gray-100 dark:border-gray-700">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-8 h-8 text-green-600 dark:text-green-400"
@@ -96,7 +96,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-xs w-full max-w-md border border-gray-100 dark:border-gray-700">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-r from-blue-600 to-indigo-600 rounded mb-4">
@@ -241,7 +241,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white py-3 rounded font-semibold hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="w-full bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white py-3 rounded font-semibold hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-xs hover:shadow-xs"
           >
             {loading ? (
               <span className="flex items-center justify-center">
