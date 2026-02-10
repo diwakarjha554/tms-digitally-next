@@ -8,9 +8,10 @@ const updateProjectSchema = z.object({
   description: z.string().optional(),
   status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED']).optional(),
   managerId: z.uuid().optional().nullable(),
+  memberIds: z.array(z.string().uuid()).optional(), // ADD THIS LINE
 });
 
-// GET project details
+// GET project details (keep same)
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireAuth();
@@ -56,12 +57,14 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
   }
 }
 
-// PATCH update project (Admin only)
+// PATCH update project (Admin only) - UPDATED
 export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireAuth();
     const { id } = await context.params;
     const body = await req.json();
+
+    // Validate input
     const validated = updateProjectSchema.parse(body);
 
     const project = await prisma.project.findUnique({
@@ -77,14 +80,69 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Only admins can update projects' }, { status: 403 });
     }
 
-    const updated = await prisma.project.update({
-      where: { id },
-      data: validated,
-      include: {
-        owner: { select: { id: true, name: true, email: true } },
-        manager: { select: { id: true, name: true, email: true } },
-        _count: { select: { tasks: true, memberships: true } },
-      },
+    // Extract memberIds from validated data
+    const { memberIds, ...projectData } = validated;
+
+    // Use transaction to update project and members atomically
+    const updated = await prisma.$transaction(async (tx) => {
+      // 1. Update project basic info
+      const updatedProject = await tx.project.update({
+        where: { id },
+        data: projectData,
+      });
+
+      // 2. Handle member updates if memberIds provided
+      if (memberIds !== undefined) {
+        // Get current members
+        const currentMemberships = await tx.projectMembership.findMany({
+          where: { projectId: id },
+          select: { userId: true },
+        });
+
+        const currentMemberIds = currentMemberships.map((m) => m.userId);
+
+        // Find members to add (in new list but not in current)
+        const membersToAdd = memberIds.filter((userId) => !currentMemberIds.includes(userId));
+
+        // Find members to remove (in current but not in new list)
+        const membersToRemove = currentMemberIds.filter((userId) => !memberIds.includes(userId));
+
+        // Add new members
+        if (membersToAdd.length > 0) {
+          await tx.projectMembership.createMany({
+            data: membersToAdd.map((userId) => ({
+              userId,
+              projectId: id,
+            })),
+            skipDuplicates: true,
+          });
+        }
+
+        // Remove members
+        if (membersToRemove.length > 0) {
+          await tx.projectMembership.deleteMany({
+            where: {
+              projectId: id,
+              userId: { in: membersToRemove },
+            },
+          });
+        }
+      }
+
+      // 3. Fetch updated project with all relations
+      return await tx.project.findUnique({
+        where: { id },
+        include: {
+          owner: { select: { id: true, name: true, email: true } },
+          manager: { select: { id: true, name: true, email: true } },
+          memberships: {
+            include: {
+              user: { select: { id: true, name: true, email: true, role: true } },
+            },
+          },
+          _count: { select: { tasks: true, memberships: true } },
+        },
+      });
     });
 
     // Log activity
@@ -93,7 +151,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
         action: 'updated',
         entity: 'project',
         entityId: id,
-        details: JSON.stringify(validated),
+        details: JSON.stringify({ ...projectData, membersUpdated: memberIds?.length || 0 }),
         userId: user.id,
         projectId: id,
       },
@@ -101,11 +159,12 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
 
     return NextResponse.json(updated);
   } catch (error: any) {
+    console.error('Update project error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// DELETE project (Admin only)
+// DELETE project (Admin only) - keep same
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireAuth();
